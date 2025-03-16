@@ -8,7 +8,6 @@
   <xacro:property name="a1" value="0.1" />
   <xacro:property name="a2" value="0.1" />
   <xacro:property name="a3" value="0.05" />
-  <xacro:property name="tip_offset" value="0.02" />
 
   <!-- Finger base positions -->
   <xacro:property name="finger1_base" value="0.05 0 -0.05" />
@@ -18,6 +17,9 @@
   <!-- Visual parameters -->
   <xacro:property name="joint_radius" value="0.02" />
   <xacro:property name="link_radius"  value="0.01" />
+
+  <!-- Fingertip parameters -->
+  <xacro:property name="h" value="0.02" />
   
   <!-- Global Materials -->
   <material name="sky_blue">
@@ -141,9 +143,9 @@
     <!-- Third Link -->
     <link name="finger${finger_id}_link2">
       <visual>
-        <origin xyz="${-(a3/2)} 0 0" rpy="0 ${-(PI/2)} 0"/>
+        <origin xyz="${-(a3/2)+h} 0 0" rpy="0 ${-(PI/2)} 0"/>
         <geometry>
-          <cylinder radius="${link_radius}" length="${a3}"/>
+          <cylinder radius="${link_radius}" length="${a3 + h}"/>
         </geometry>
         <material name="dark_blue"/>
       </visual>
@@ -159,7 +161,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <sphere radius="${tip_offset}"/>
+          <sphere radius="${link_radius}"/>
         </geometry>
         <material name="purple"/>
       </visual>
@@ -167,7 +169,7 @@
     <joint name="finger${finger_id}_tip_fixed" type="fixed">
       <parent link="finger${finger_id}_link2"/>
       <child link="finger${finger_id}_tip"/>
-      <origin xyz="${tip_offset} 0 0" rpy="0 0 0"/>
+      <origin xyz="${h + link_radius} 0 0" rpy="0 0 0"/>
     </joint>
 
   </xacro:macro>
