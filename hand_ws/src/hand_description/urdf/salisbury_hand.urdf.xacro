@@ -23,7 +23,7 @@
   <xacro:property name="fingertip_x" value="0.267" />
   <xacro:property name="fingertip_y_range" value="0.10" />
   <xacro:property name="fingertip_z_range" value="0.034" /> 
-   <xacro:property name="box_size_y_tolerance" value="0.05" />
+  <xacro:property name="box_size_y_tolerance" value="0.05" />
   <xacro:property name="box_size_x" value="0.03" />
   <xacro:property name="box_size_y" value="${fingertip_y_range + box_size_y_tolerance}" />
   <xacro:property name="box_size_z" value="${fingertip_z_range - 2*r}" />
@@ -147,45 +147,7 @@
     </joint>
   </xacro:macro>
 
-  <!-- Macro definition for a box -->
-  <!-- <xacro:macro name="create_fixed_box"
-               params="box_name
-                       box_size_x
-                       box_size_y
-                       box_size_z
-                       xyz
-                       rpy
-                       material_name">
-    <link name="${box_name}">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <box size="${box_size_x} ${box_size_y} ${box_size_z}"/>
-        </geometry>
-        <material name="${material_name}"/>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <box size="${box_size_x} ${box_size_y} ${box_size_z}"/>
-        </geometry>
-      </collision>
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <mass value="0.2"/>
-        <inertia ixx="0.0001" ixy="0.0" ixz="0.0"
-                 iyy="0.0001" iyz="0.0"
-                 izz="0.0001"/>
-      </inertial>
-    </link>
-    <joint name="${box_name}_fixed_joint" type="fixed">
-      <parent link="world"/>
-      <child link="${box_name}"/>
-      <origin xyz="${xyz}" rpy="${rpy}"/>
-    </joint>
-  </xacro:macro> -->
-
-  <!-- Macro para crear la caja sin joint fijo (solo el link) -->
+  <!-- Macro to create the box without a fixed joint (link only) -->
   <xacro:macro name="create_floating_box"
                params="box_name
                        box_size_x
@@ -232,19 +194,19 @@
                 theta_lower_joint0="${-PI/8}"
                 theta_upper_joint0="${PI/8}"/>
 
-  <!-- Box that encloses the three fingertip coords when joints centered -->
+  <!-- Box that encloses the three fingertip coordinates when joints are centered -->
   <!-- <xacro:create_fixed_box
-    box_name="grasp_box"
-    box_size_x="${box_size_x}"
-    box_size_y="${box_size_y}"
-    box_size_z="${box_size_z}"
-    xyz="${fingertip_x} 0 0"
-    rpy="0 0 0"
-    material_name="green"
+       box_name="grasp_box"
+       box_size_x="${box_size_x}"
+       box_size_y="${box_size_y}"
+       box_size_z="${box_size_z}"
+       xyz="${fingertip_x} 0 0"
+       rpy="0 0 0"
+       material_name="green"
   /> -->
 
-  <!-- Definición de la caja con 6 DOF mediante joints dummy -->
-  <!-- 1) Se fija la posición base de la caja con el offset deseado -->
+  <!-- Definition of the box with 6 DOF using dummy joints -->
+  <!-- 1) Fix the box base position with the desired offset -->
   <joint name="grasp_box_base_fixed" type="fixed">
     <parent link="world"/>
     <child link="grasp_box_base"/>
@@ -252,11 +214,11 @@
   </joint>
   <link name="grasp_box_base"/>
 
-  <!-- 2) Se crea el link de la caja (visual, colisión, inercia) -->
+  <!-- 2) Create the box link (visual, collision, inertia) -->
   <xacro:create_floating_box box_name="grasp_box" box_size_x="${box_size_x}" box_size_y="${box_size_y}" box_size_z="${box_size_z}"/>
 
-  <!-- 3) Cadena dummy de joints para otorgar 6 DOF a partir del frame base -->
-  <!-- Traslaciones -->
+  <!-- 3) Dummy joint chain to provide 6 DOF from the base frame -->
+  <!-- Translations -->
   <joint name="grasp_box_trans_x" type="prismatic">
     <parent link="grasp_box_base"/>
     <child link="grasp_box_trans_x_link"/>
@@ -284,7 +246,7 @@
   </joint>
   <link name="grasp_box_trans_z_link"/>
 
-  <!-- Rotaciones -->
+  <!-- Rotations -->
   <joint name="grasp_box_rot_x" type="revolute">
     <parent link="grasp_box_trans_z_link"/>
     <child link="grasp_box_rot_x_link"/>
@@ -311,14 +273,12 @@
     <limit lower="-3.14" upper="3.14" effort="10" velocity="1"/>
   </joint>
 
-
   <!-- Finger 1 contact reference frame on the box -->
   <link name="finger1_box_contact_frame"/>
   <joint name="finger1_box_contact_frame_joint" type="fixed">
     <parent link="grasp_box"/>
     <child link="finger1_box_contact_frame"/>
     <origin xyz="0.006 0.000 -0.009" rpy="0.0 0.0 0.0"/>
-    <!-- <origin xyz="0.006 0.000 -0.009" rpy="-1.571 -0.884 0.000"/> -->
   </joint>
 
   <!-- Finger 2 contact reference frame on the box -->
@@ -327,7 +287,6 @@
     <parent link="grasp_box"/>
     <child link="finger2_box_contact_frame"/>
     <origin xyz="0.007 -0.050 0.009" rpy="0.0 0.0 0.0"/>
-    <!-- <origin xyz="0.007 -0.050 0.009" rpy="1.571 0.880 0.000"/> -->
   </joint>
 
   <!-- Finger 3 contact reference frame on the box -->
@@ -336,7 +295,6 @@
     <parent link="grasp_box"/>
     <child link="finger3_box_contact_frame"/>
     <origin xyz="0.006 0.050 0.009" rpy="0.0 0.0 0.0"/>
-    <!-- <origin xyz="0.006 0.050 0.009" rpy="1.571 0.885 0.000"/> -->
   </joint>
 
 </robot>
