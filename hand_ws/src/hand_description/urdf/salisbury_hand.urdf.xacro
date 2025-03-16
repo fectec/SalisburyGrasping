@@ -181,7 +181,7 @@
                  izz="0.0001"/>
       </inertial>
     </link>
-    <joint name="${box_name}_fixed_joint" type="fixed">
+    <joint name="${box_name}_fixed_joint" type="floating">
       <parent link="world"/>
       <child link="${box_name}"/>
       <origin xyz="${xyz}" rpy="${rpy}"/>
