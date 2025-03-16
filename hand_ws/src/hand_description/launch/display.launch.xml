@@ -1,7 +1,7 @@
 <launch>
 
     <let name="urdf_path" 
-        value="$(find-pkg-share hand_description)/urdf/salisbury_hand.urdf"/>
+        value="$(find-pkg-share hand_description)/urdf/salisbury_hand.urdf.xacro"/>
 
     <let name="rviz_config_path"
         value="$(find-pkg-share hand_description)/config/rviz_config.rviz" />
