@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <robot name="salisbury_hand" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <!-- Constants -->
+  <xacro:property name="PI" value="3.14159265359" />
+
   <!-- Kinematic parameters -->
   <xacro:property name="a1" value="0.1" />
   <xacro:property name="a2" value="0.1" />
@@ -46,7 +49,7 @@
     <joint name="finger${finger_id}_base_fixed" type="fixed">
       <parent link="world"/>
       <child link="finger${finger_id}_base_link"/>
-      <origin xyz="${base_xyz}" rpy="${ '3.14159265359 -0.7854 0' if invert else '0 0.7854 0'}"/>
+      <origin xyz="${base_xyz}" rpy="${(PI if invert else 0)} ${(-PI/4 if invert else PI/4)} 0"/>
     </joint>
 
     <!-- First Revolute Joint -->
@@ -70,7 +73,7 @@
     <!-- First Link -->
     <link name="finger${finger_id}_link0">
       <visual>
-        <origin xyz="${-a1/2} 0 0" rpy="0 -1.5708 0"/>
+        <origin xyz="${-a1/2} 0 0" rpy="0 ${-(PI/2)} 0"/>
         <geometry>
           <cylinder radius="${link_radius}" length="${a1}"/>
         </geometry>
@@ -80,7 +83,7 @@
     <joint name="finger${finger_id}_link0_fixed" type="fixed">
       <parent link="finger${finger_id}_joint0_link"/>
       <child link="finger${finger_id}_link0"/>
-      <origin xyz="${a1} 0 0" rpy="-1.5708 0 0"/>
+      <origin xyz="${a1} 0 0" rpy="${-(PI/2)} 0 0"/>
     </joint>
 
     <!-- Second Revolute Joint -->
@@ -98,13 +101,13 @@
       <child link="finger${finger_id}_joint1_link"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
-      <limit lower="-0.7854" upper="-1.5708" effort="10" velocity="1"/>
+      <limit lower="${-(PI/4)}" upper="${-(PI/2)}" effort="10" velocity="1"/>
     </joint>
 
     <!-- Second Link -->
     <link name="finger${finger_id}_link1">
       <visual>
-        <origin xyz="${-a2/2} 0 0" rpy="0 -1.5708 0"/>
+        <origin xyz="${-(a2/2)} 0 0" rpy="0 ${-(PI/2)} 0"/>
         <geometry>
           <cylinder radius="${link_radius}" length="${a2}"/>
         </geometry>
@@ -132,13 +135,13 @@
       <child link="finger${finger_id}_joint2_link"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
-      <limit lower="-0.19635" upper="-0.7854" effort="10" velocity="1"/>
+      <limit lower="${-(PI/16)}" upper="${-(PI/4)}" effort="10" velocity="1"/>
     </joint>
 
     <!-- Third Link -->
     <link name="finger${finger_id}_link2">
       <visual>
-        <origin xyz="${-a3/2} 0 0" rpy="0 -1.5708 0"/>
+        <origin xyz="${-(a3/2)} 0 0" rpy="0 ${-(PI/2)} 0"/>
         <geometry>
           <cylinder radius="${link_radius}" length="${a3}"/>
         </geometry>
@@ -170,8 +173,8 @@
   </xacro:macro>
 
   <!-- Instantiate fingers with custom parameters -->
-  <xacro:finger finger_id="1" base_xyz="${finger1_base}" invert="false" theta_lower_joint0="-0.3927" theta_upper_joint0="0.3927"/>
-  <xacro:finger finger_id="2" base_xyz="${finger2_base}" invert="true"  theta_lower_joint0="-0.3927"    theta_upper_joint0="0.3927"/>
-  <xacro:finger finger_id="3" base_xyz="${finger3_base}" invert="true"  theta_lower_joint0="-0.3927"    theta_upper_joint0="0.3927"/>
+  <xacro:finger finger_id="1" base_xyz="${finger1_base}" invert="false" theta_lower_joint0="${-(PI/8)}" theta_upper_joint0="${(PI/8)}"/>
+  <xacro:finger finger_id="2" base_xyz="${finger2_base}" invert="true"  theta_lower_joint0="${-(PI/8)}"    theta_upper_joint0="${(PI/8)}"/>
+  <xacro:finger finger_id="3" base_xyz="${finger3_base}" invert="true"  theta_lower_joint0="${-(PI/8)}"    theta_upper_joint0="${(PI/8)}"/>
 
 </robot>
