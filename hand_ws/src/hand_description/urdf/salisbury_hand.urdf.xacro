@@ -32,7 +32,7 @@
     <color rgba="0.5 0 0.5 1.0"/>
   </material>
   <material name="green">
-    <color rgba="0.0 1.0 0.0 1.0"/>
+    <color rgba="0 1.0 0 1.0"/>
   </material>
 
   <!-- The root link -->
@@ -59,7 +59,7 @@
     </visual>
   </xacro:macro>
 
-  <!-- Macro to create a finger chain with explicit joint and link naming -->
+  <!-- Macro to create a finger chain -->
   <xacro:macro name="finger" params="finger_id base_xyz invert theta_lower_joint0 theta_upper_joint0">
     
     <!-- Base Joint Visual (Sphere) -->
@@ -72,7 +72,7 @@
       <origin xyz="${base_xyz}" rpy="${(PI if invert else 0)} ${(-PI/4 if invert else PI/4)} 0"/>
     </joint>
 
-    <!-- First Joint Visual (Sphere) -->
+    <!-- Joint0 Visual (Sphere) -->
     <link name="finger${finger_id}_joint0_visual">
       <xacro:vis_sphere radius="${sphere_radius}" material="sky_blue"/>
     </link>
@@ -83,7 +83,7 @@
       <limit lower="${theta_lower_joint0}" upper="${theta_upper_joint0}" effort="10" velocity="1"/>
     </joint>
 
-    <!-- First Link (Cylinder) -->
+    <!-- Link0 (Cylinder) -->
     <link name="finger${finger_id}_link0_cylinder">
       <xacro:vis_cylinder length="${a1}" radius="${cylinder_radius}" material="dark_blue"
                           origin_xyz="${-a1/2} 0 0" rpy="0 ${-PI/2} 0"/>
@@ -94,7 +94,7 @@
       <origin xyz="${a1} 0 0" rpy="${-PI/2} 0 0"/>
     </joint>
 
-    <!-- Second Joint Visual (Sphere) -->
+    <!-- Joint1 Visual (Sphere) -->
     <link name="finger${finger_id}_joint1_visual">
       <xacro:vis_sphere radius="${sphere_radius}" material="sky_blue"/>
     </link>
@@ -105,7 +105,7 @@
       <limit lower="${-PI/4}" upper="${-PI/2}" effort="10" velocity="1"/>
     </joint>
 
-    <!-- Second Link (Cylinder) -->
+    <!-- Link1 (Cylinder) -->
     <link name="finger${finger_id}_link1_cylinder">
       <xacro:vis_cylinder length="${a2}" radius="${cylinder_radius}" material="dark_blue"
                           origin_xyz="${-a2/2} 0 0" rpy="0 ${-PI/2} 0"/>
@@ -116,7 +116,7 @@
       <origin xyz="${a2} 0 0"/>
     </joint>
 
-    <!-- Third Joint Visual (Sphere) -->
+    <!-- Joint2 Visual (Sphere) -->
     <link name="finger${finger_id}_joint2_visual">
       <xacro:vis_sphere radius="${sphere_radius}" material="sky_blue"/>
     </link>
@@ -127,7 +127,7 @@
       <limit lower="${-PI/16}" upper="${-PI/4}" effort="10" velocity="1"/>
     </joint>
 
-    <!-- Third Link (Cylinder) -->
+    <!-- Link2 (Cylinder) -->
     <link name="finger${finger_id}_link2_cylinder">
       <xacro:vis_cylinder length="${a3 + h}" radius="${cylinder_radius}" material="dark_blue"
                           origin_xyz="${-(a3/2)+h} 0 0" rpy="0 ${-PI/2} 0"/>
@@ -147,17 +147,18 @@
       <child link="finger${finger_id}_tip_visual"/>
       <origin xyz="${h + r} 0 0"/>
     </joint>
+
   </xacro:macro>
 
   <!-- Macro definition for a box -->
-  <xacro:macro name="create_fixed_box" 
-               params="box_name:='grasp_box' 
-                       box_size_x:='0.06' 
-                       box_size_y:='0.03' 
-                       box_size_z:='0.02' 
-                       xyz:='0 0 0' 
-                       rpy:='0 0 0' 
-                       material_name:='green'">
+  <xacro:macro name="create_fixed_box"
+               params="box_name
+                       box_size_x
+                       box_size_y
+                       box_size_z
+                       xyz
+                       rpy
+                       material_name">
     <link name="${box_name}">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -187,32 +188,30 @@
     </joint>
   </xacro:macro>
 
-  <!-- Instantiate fingers -->
+  <!-- Instantiate the 3 fingers -->
   <xacro:finger finger_id="1"
                 base_xyz="${finger1_base}"
                 invert="false"
                 theta_lower_joint0="${-PI/8}"
                 theta_upper_joint0="${PI/8}"/>
-
   <xacro:finger finger_id="2"
                 base_xyz="${finger2_base}"
                 invert="true"
                 theta_lower_joint0="${-PI/8}"
                 theta_upper_joint0="${PI/8}"/>
-
   <xacro:finger finger_id="3"
                 base_xyz="${finger3_base}"
                 invert="true"
                 theta_lower_joint0="${-PI/8}"
                 theta_upper_joint0="${PI/8}"/>
 
-  <!-- Instantiate the box -->
-  <xacro:create_fixed_box 
-    box_name="grasp_box" 
-    box_size_x="0.06" 
-    box_size_y="0.06" 
-    box_size_z="0.02"
-    xyz="0.5 0.0 0.05" 
+  <!-- Box that encloses the three fingertip coords when joints centered -->
+  <xacro:create_fixed_box
+    box_name="grasp_box"
+    box_size_x="0.01"  
+    box_size_y="0.10"  
+    box_size_z="${0.034 - 2*r}"  
+    xyz="0.267 0 0"
     rpy="0 0 0"
     material_name="green"
   />
