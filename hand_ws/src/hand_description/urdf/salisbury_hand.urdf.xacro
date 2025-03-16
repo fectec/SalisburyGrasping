@@ -10,17 +10,17 @@
   <xacro:property name="a3" value="0.05" />
 
   <!-- Finger base positions -->
-  <xacro:property name="finger1_base" value="0.05 0 -0.05" />
-  <xacro:property name="finger2_base" value="0.05 -0.05 0.05" />
-  <xacro:property name="finger3_base" value="0.05 0.05 0.05" />
+  <xacro:property name="base_distance" value="0.05" />
+  <xacro:property name="finger1_base" value="${base_distance} 0 ${-base_distance}" />
+  <xacro:property name="finger2_base" value="${base_distance} ${-base_distance} ${base_distance}" />
+  <xacro:property name="finger3_base" value="${base_distance} ${base_distance} ${base_distance}" />
 
-  <!-- Visual parameters -->
-  <xacro:property name="joint_radius" value="0.02" />
-  <xacro:property name="link_radius"  value="0.01" />
+  <!-- Other parameters -->
+  <xacro:property name="h" value="${a3/2}" />
+  <xacro:property name="cylinder_radius" value="0.01" />
+  <xacro:property name="r" value="${cylinder_radius}" />
+  <xacro:property name="sphere_radius" value="${cylinder_radius*2}" />
 
-  <!-- Fingertip parameters -->
-  <xacro:property name="h" value="0.02" />
-  
   <!-- Global Materials -->
   <material name="sky_blue">
     <color rgba="0.53 0.81 0.92 1.0"/>
@@ -35,148 +35,119 @@
   <!-- The root link -->
   <link name="world"/>
 
-  <!-- Macro to create a finger chain with custom parameters -->
+  <!-- Helper macros for visuals -->
+  <xacro:macro name="vis_sphere" params="radius material">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="${radius}"/>
+      </geometry>
+      <material name="${material}"/>
+    </visual>
+  </xacro:macro>
+
+  <xacro:macro name="vis_cylinder" params="length radius material origin_xyz rpy">
+    <visual>
+      <origin xyz="${origin_xyz}" rpy="${rpy}"/>
+      <geometry>
+        <cylinder radius="${radius}" length="${length}"/>
+      </geometry>
+      <material name="${material}"/>
+    </visual>
+  </xacro:macro>
+
+  <!-- Macro to create a finger chain with explicit joint and link naming -->
   <xacro:macro name="finger" params="finger_id base_xyz invert theta_lower_joint0 theta_upper_joint0">
     
-    <!-- Base Joint -->
-    <link name="finger${finger_id}_base_link">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${joint_radius}"/>
-        </geometry>
-        <material name="sky_blue"/>
-      </visual>
+    <!-- Base Joint Visual (Sphere) -->
+    <link name="finger${finger_id}_base_joint">
+      <xacro:vis_sphere radius="${sphere_radius}" material="sky_blue"/>
     </link>
     <joint name="finger${finger_id}_base_fixed" type="fixed">
       <parent link="world"/>
-      <child link="finger${finger_id}_base_link"/>
+      <child link="finger${finger_id}_base_joint"/>
       <origin xyz="${base_xyz}" rpy="${(PI if invert else 0)} ${(-PI/4 if invert else PI/4)} 0"/>
     </joint>
 
-    <!-- First Revolute Joint -->
-    <link name="finger${finger_id}_joint0_link">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${joint_radius}"/>
-        </geometry>
-        <material name="sky_blue"/>
-      </visual>
+    <!-- First Joint Visual (Sphere) -->
+    <link name="finger${finger_id}_joint0_visual">
+      <xacro:vis_sphere radius="${sphere_radius}" material="sky_blue"/>
     </link>
     <joint name="finger${finger_id}_joint0" type="revolute">
-      <parent link="finger${finger_id}_base_link"/>
-      <child link="finger${finger_id}_joint0_link"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="finger${finger_id}_base_joint"/>
+      <child link="finger${finger_id}_joint0_visual"/>
       <axis xyz="0 0 1"/>
       <limit lower="${theta_lower_joint0}" upper="${theta_upper_joint0}" effort="10" velocity="1"/>
     </joint>
 
-    <!-- First Link -->
-    <link name="finger${finger_id}_link0">
-      <visual>
-        <origin xyz="${-a1/2} 0 0" rpy="0 ${-(PI/2)} 0"/>
-        <geometry>
-          <cylinder radius="${link_radius}" length="${a1}"/>
-        </geometry>
-        <material name="dark_blue"/>
-      </visual>
+    <!-- First Link (Cylinder) -->
+    <link name="finger${finger_id}_link0_cylinder">
+      <xacro:vis_cylinder length="${a1}" radius="${cylinder_radius}" material="dark_blue"
+                          origin_xyz="${-a1/2} 0 0" rpy="0 ${-PI/2} 0"/>
     </link>
     <joint name="finger${finger_id}_link0_fixed" type="fixed">
-      <parent link="finger${finger_id}_joint0_link"/>
-      <child link="finger${finger_id}_link0"/>
-      <origin xyz="${a1} 0 0" rpy="${-(PI/2)} 0 0"/>
+      <parent link="finger${finger_id}_joint0_visual"/>
+      <child link="finger${finger_id}_link0_cylinder"/>
+      <origin xyz="${a1} 0 0" rpy="${-PI/2} 0 0"/>
     </joint>
 
-    <!-- Second Revolute Joint -->
-    <link name="finger${finger_id}_joint1_link">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${joint_radius}"/>
-        </geometry>
-        <material name="sky_blue"/>
-      </visual>
+    <!-- Second Joint Visual (Sphere) -->
+    <link name="finger${finger_id}_joint1_visual">
+      <xacro:vis_sphere radius="${sphere_radius}" material="sky_blue"/>
     </link>
     <joint name="finger${finger_id}_joint1" type="revolute">
-      <parent link="finger${finger_id}_link0"/>
-      <child link="finger${finger_id}_joint1_link"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="finger${finger_id}_link0_cylinder"/>
+      <child link="finger${finger_id}_joint1_visual"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-(PI/4)}" upper="${-(PI/2)}" effort="10" velocity="1"/>
+      <limit lower="${-PI/4}" upper="${-PI/2}" effort="10" velocity="1"/>
     </joint>
 
-    <!-- Second Link -->
-    <link name="finger${finger_id}_link1">
-      <visual>
-        <origin xyz="${-(a2/2)} 0 0" rpy="0 ${-(PI/2)} 0"/>
-        <geometry>
-          <cylinder radius="${link_radius}" length="${a2}"/>
-        </geometry>
-        <material name="dark_blue"/>
-      </visual>
+    <!-- Second Link (Cylinder) -->
+    <link name="finger${finger_id}_link1_cylinder">
+      <xacro:vis_cylinder length="${a2}" radius="${cylinder_radius}" material="dark_blue"
+                          origin_xyz="${-a2/2} 0 0" rpy="0 ${-PI/2} 0"/>
     </link>
     <joint name="finger${finger_id}_link1_fixed" type="fixed">
-      <parent link="finger${finger_id}_joint1_link"/>
-      <child link="finger${finger_id}_link1"/>
-      <origin xyz="${a2} 0 0" rpy="0 0 0"/>
+      <parent link="finger${finger_id}_joint1_visual"/>
+      <child link="finger${finger_id}_link1_cylinder"/>
+      <origin xyz="${a2} 0 0"/>
     </joint>
 
-    <!-- Third Revolute Joint -->
-    <link name="finger${finger_id}_joint2_link">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${joint_radius}"/>
-        </geometry>
-        <material name="sky_blue"/>
-      </visual>
+    <!-- Third Joint Visual (Sphere) -->
+    <link name="finger${finger_id}_joint2_visual">
+      <xacro:vis_sphere radius="${sphere_radius}" material="sky_blue"/>
     </link>
     <joint name="finger${finger_id}_joint2" type="revolute">
-      <parent link="finger${finger_id}_link1"/>
-      <child link="finger${finger_id}_joint2_link"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="finger${finger_id}_link1_cylinder"/>
+      <child link="finger${finger_id}_joint2_visual"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-(PI/16)}" upper="${-(PI/4)}" effort="10" velocity="1"/>
+      <limit lower="${-PI/16}" upper="${-PI/4}" effort="10" velocity="1"/>
     </joint>
 
-    <!-- Third Link -->
-    <link name="finger${finger_id}_link2">
-      <visual>
-        <origin xyz="${-(a3/2)+h} 0 0" rpy="0 ${-(PI/2)} 0"/>
-        <geometry>
-          <cylinder radius="${link_radius}" length="${a3 + h}"/>
-        </geometry>
-        <material name="dark_blue"/>
-      </visual>
+    <!-- Third Link (Cylinder) -->
+    <link name="finger${finger_id}_link2_cylinder">
+      <xacro:vis_cylinder length="${a3 + h}" radius="${cylinder_radius}" material="dark_blue"
+                          origin_xyz="${-(a3/2)+h} 0 0" rpy="0 ${-PI/2} 0"/>
     </link>
     <joint name="finger${finger_id}_link2_fixed" type="fixed">
-      <parent link="finger${finger_id}_joint2_link"/>
-      <child link="finger${finger_id}_link2"/>
-      <origin xyz="${a3} 0 0" rpy="0 0 0"/>
+      <parent link="finger${finger_id}_joint2_visual"/>
+      <child link="finger${finger_id}_link2_cylinder"/>
+      <origin xyz="${a3} 0 0"/>
     </joint>
 
-   <!-- Fingertip -->
-    <link name="finger${finger_id}_tip">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${link_radius}"/>
-        </geometry>
-        <material name="purple"/>
-      </visual>
+    <!-- Fingertip Visual (Sphere) -->
+    <link name="finger${finger_id}_tip_visual">
+      <xacro:vis_sphere radius="${r}" material="purple"/>
     </link>
     <joint name="finger${finger_id}_tip_fixed" type="fixed">
-      <parent link="finger${finger_id}_link2"/>
-      <child link="finger${finger_id}_tip"/>
-      <origin xyz="${h + link_radius} 0 0" rpy="0 0 0"/>
+      <parent link="finger${finger_id}_link2_cylinder"/>
+      <child link="finger${finger_id}_tip_visual"/>
+      <origin xyz="${h + r} 0 0"/>
     </joint>
-
   </xacro:macro>
 
-  <!-- Instantiate fingers with custom parameters -->
-  <xacro:finger finger_id="1" base_xyz="${finger1_base}" invert="false" theta_lower_joint0="${-(PI/8)}" theta_upper_joint0="${(PI/8)}"/>
-  <xacro:finger finger_id="2" base_xyz="${finger2_base}" invert="true"  theta_lower_joint0="${-(PI/8)}"    theta_upper_joint0="${(PI/8)}"/>
-  <xacro:finger finger_id="3" base_xyz="${finger3_base}" invert="true"  theta_lower_joint0="${-(PI/8)}"    theta_upper_joint0="${(PI/8)}"/>
-
+  <!-- Instantiate fingers -->
+  <xacro:finger finger_id="1" base_xyz="${finger1_base}" invert="false" theta_lower_joint0="${-PI/8}" theta_upper_joint0="${PI/8}"/>
+  <xacro:finger finger_id="2" base_xyz="${finger2_base}" invert="true" theta_lower_joint0="${-PI/8}" theta_upper_joint0="${PI/8}"/>
+  <xacro:finger finger_id="3" base_xyz="${finger3_base}" invert="true" theta_lower_joint0="${-PI/8}" theta_upper_joint0="${PI/8}"/>
 </robot>
