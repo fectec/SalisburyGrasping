@@ -39,9 +39,9 @@
   <link name="world"/>
 
   <!-- Helper macros for visuals -->
-  <xacro:macro name="vis_sphere" params="radius material">
+  <xacro:macro name="vis_sphere" params="radius material origin_xyz='0 0 0'">
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="${origin_xyz}" rpy="0 0 0"/>
       <geometry>
         <sphere radius="${radius}"/>
       </geometry>
@@ -140,12 +140,12 @@
 
     <!-- Fingertip Visual (Sphere) -->
     <link name="finger${finger_id}_tip_visual">
-      <xacro:vis_sphere radius="${r}" material="purple"/>
+      <xacro:vis_sphere radius="${r}" material="purple" origin_xyz="-${r} 0 0"/>
     </link>
     <joint name="finger${finger_id}_tip_fixed" type="fixed">
       <parent link="finger${finger_id}_link2_cylinder"/>
       <child link="finger${finger_id}_tip_visual"/>
-      <origin xyz="${h + r} 0 0"/>
+      <origin xyz="${h + 2*r} 0 0"/>
     </joint>
 
   </xacro:macro>
