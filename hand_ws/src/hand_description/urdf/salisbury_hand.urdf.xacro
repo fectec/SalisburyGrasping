@@ -156,7 +156,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <sphere radius="${joint_radius}"/>
+          <sphere radius="${tip_offset}"/>
         </geometry>
         <material name="purple"/>
       </visual>
