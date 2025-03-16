@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'hand_control_pkg'
+package_name = 'hand_control'
 
 setup(
     name=package_name,
