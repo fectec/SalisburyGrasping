@@ -31,6 +31,9 @@
   <material name="purple">
     <color rgba="0.5 0 0.5 1.0"/>
   </material>
+  <material name="green">
+    <color rgba="0.0 1.0 0.0 1.0"/>
+  </material>
 
   <!-- The root link -->
   <link name="world"/>
@@ -146,8 +149,72 @@
     </joint>
   </xacro:macro>
 
+  <!-- Macro definition for a box -->
+  <xacro:macro name="create_fixed_box" 
+               params="box_name:='grasp_box' 
+                       box_size_x:='0.06' 
+                       box_size_y:='0.03' 
+                       box_size_z:='0.02' 
+                       xyz:='0 0 0' 
+                       rpy:='0 0 0' 
+                       material_name:='green'">
+    <link name="${box_name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${box_size_x} ${box_size_y} ${box_size_z}"/>
+        </geometry>
+        <material name="${material_name}"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${box_size_x} ${box_size_y} ${box_size_z}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.2"/>
+        <inertia ixx="0.0001" ixy="0.0" ixz="0.0"
+                 iyy="0.0001" iyz="0.0"
+                 izz="0.0001"/>
+      </inertial>
+    </link>
+    <joint name="${box_name}_fixed_joint" type="fixed">
+      <parent link="world"/>
+      <child link="${box_name}"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+  </xacro:macro>
+
   <!-- Instantiate fingers -->
-  <xacro:finger finger_id="1" base_xyz="${finger1_base}" invert="false" theta_lower_joint0="${-PI/8}" theta_upper_joint0="${PI/8}"/>
-  <xacro:finger finger_id="2" base_xyz="${finger2_base}" invert="true" theta_lower_joint0="${-PI/8}" theta_upper_joint0="${PI/8}"/>
-  <xacro:finger finger_id="3" base_xyz="${finger3_base}" invert="true" theta_lower_joint0="${-PI/8}" theta_upper_joint0="${PI/8}"/>
+  <xacro:finger finger_id="1"
+                base_xyz="${finger1_base}"
+                invert="false"
+                theta_lower_joint0="${-PI/8}"
+                theta_upper_joint0="${PI/8}"/>
+
+  <xacro:finger finger_id="2"
+                base_xyz="${finger2_base}"
+                invert="true"
+                theta_lower_joint0="${-PI/8}"
+                theta_upper_joint0="${PI/8}"/>
+
+  <xacro:finger finger_id="3"
+                base_xyz="${finger3_base}"
+                invert="true"
+                theta_lower_joint0="${-PI/8}"
+                theta_upper_joint0="${PI/8}"/>
+
+  <!-- Instantiate the box -->
+  <xacro:create_fixed_box 
+    box_name="grasp_box" 
+    box_size_x="0.06" 
+    box_size_y="0.06" 
+    box_size_z="0.02"
+    xyz="0.5 0.0 0.05" 
+    rpy="0 0 0"
+    material_name="green"
+  />
+
 </robot>
