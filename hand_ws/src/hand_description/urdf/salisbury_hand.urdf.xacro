@@ -312,7 +312,6 @@
   </joint>
 
 
-
   <!-- Finger 1 contact reference frame on the box -->
   <link name="finger1_box_contact_frame"/>
   <joint name="finger1_box_contact_frame_joint" type="fixed">
