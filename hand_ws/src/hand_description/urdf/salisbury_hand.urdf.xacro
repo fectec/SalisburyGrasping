@@ -317,7 +317,8 @@
   <joint name="finger1_box_contact_frame_joint" type="fixed">
     <parent link="grasp_box"/>
     <child link="finger1_box_contact_frame"/>
-    <origin xyz="0.006 0.000 -0.009" rpy="-1.571 -0.884 0.000"/>
+    <origin xyz="0.006 0.000 -0.009" rpy="0.0 0.0 0.0"/>
+    <!-- <origin xyz="0.006 0.000 -0.009" rpy="-1.571 -0.884 0.000"/> -->
   </joint>
 
   <!-- Finger 2 contact reference frame on the box -->
@@ -325,7 +326,8 @@
   <joint name="finger2_box_contact_frame_joint" type="fixed">
     <parent link="grasp_box"/>
     <child link="finger2_box_contact_frame"/>
-    <origin xyz="0.007 -0.050 0.009" rpy="1.571 0.880 0.000"/>
+    <origin xyz="0.007 -0.050 0.009" rpy="0.0 0.0 0.0"/>
+    <!-- <origin xyz="0.007 -0.050 0.009" rpy="1.571 0.880 0.000"/> -->
   </joint>
 
   <!-- Finger 3 contact reference frame on the box -->
@@ -333,7 +335,8 @@
   <joint name="finger3_box_contact_frame_joint" type="fixed">
     <parent link="grasp_box"/>
     <child link="finger3_box_contact_frame"/>
-    <origin xyz="0.006 0.050 0.009" rpy="1.571 0.885 0.000"/>
+    <origin xyz="0.006 0.050 0.009" rpy="0.0 0.0 0.0"/>
+    <!-- <origin xyz="0.006 0.050 0.009" rpy="1.571 0.885 0.000"/> -->
   </joint>
 
 </robot>
