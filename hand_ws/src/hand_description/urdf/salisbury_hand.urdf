@@ -1,0 +1,241 @@
+<?xml version="1.0"?>
+<robot name="salisbury_hand" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Material definitions -->
+  <material name="skyblue">
+    <color rgba="0.529 0.808 0.922 1.0"/>
+  </material>
+  
+  <material name="darkblue">
+    <color rgba="0.0 0.0 0.5 1.0"/>
+  </material>
+
+  <!-- Global parameters for the hand -->
+  <xacro:property name="joint_radius" value="0.025"/>
+  <xacro:property name="joint_length" value="0.05"/>
+  <xacro:property name="link_radius" value="0.015"/>
+  
+  <!-- Finger link length parameters -->
+  <xacro:property name="a1" value="0.1"/>
+  <xacro:property name="a2" value="0.08"/>
+  <xacro:property name="a3" value="0.06"/>
+  
+  <!-- World link -->
+  <link name="world"/>
+  
+  <!-- Macro to create a finger with identical kinematics -->
+  <xacro:macro name="finger" params="prefix x y z">
+    <!-- Base joint - connects to world -->
+    <joint name="${prefix}_base_joint" type="fixed">
+      <parent link="world"/>
+      <child link="${prefix}_base_link"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+    </joint>
+    
+    <!-- Base link - reference frame for the finger -->
+    <link name="${prefix}_base_link"/>
+    
+    <!-- Joint 1 -->
+    <joint name="${prefix}_joint1" type="revolute">
+      <parent link="${prefix}_base_link"/>
+      <child link="${prefix}_link1"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+    </joint>
+    
+    <!-- Link 1 -->
+    <link name="${prefix}_link1">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${joint_radius}" length="${joint_length}"/>
+        </geometry>
+        <material name="skyblue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${joint_radius}" length="${joint_length}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+    
+    <!-- First link extension -->
+    <joint name="${prefix}_extension1" type="fixed">
+      <parent link="${prefix}_link1"/>
+      <child link="${prefix}_extension1"/>
+      <origin xyz="${a1/2} 0 ${joint_length/2}" rpy="${pi/2} 0 0"/>
+    </joint>
+    
+    <link name="${prefix}_extension1">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${link_radius}" length="${a1}"/>
+        </geometry>
+        <material name="darkblue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${link_radius}" length="${a1}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.05"/>
+        <inertia ixx="0.0005" ixy="0" ixz="0" iyy="0.0005" iyz="0" izz="0.0005"/>
+      </inertial>
+    </link>
+    
+    <!-- Joint 2 -->
+    <joint name="${prefix}_joint2" type="revolute">
+      <parent link="${prefix}_extension1"/>
+      <child link="${prefix}_link2"/>
+      <origin xyz="${a1/2} 0 0" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+    </joint>
+    
+    <!-- Link 2 -->
+    <link name="${prefix}_link2">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${joint_radius}" length="${joint_length}"/>
+        </geometry>
+        <material name="skyblue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${joint_radius}" length="${joint_length}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+    
+    <!-- Second link extension -->
+    <joint name="${prefix}_extension2" type="fixed">
+      <parent link="${prefix}_link2"/>
+      <child link="${prefix}_extension2"/>
+      <origin xyz="${a2/2} 0 ${joint_length/2}" rpy="${pi/2} 0 0"/>
+    </joint>
+    
+    <link name="${prefix}_extension2">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${link_radius}" length="${a2}"/>
+        </geometry>
+        <material name="darkblue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${link_radius}" length="${a2}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.05"/>
+        <inertia ixx="0.0005" ixy="0" ixz="0" iyy="0.0005" iyz="0" izz="0.0005"/>
+      </inertial>
+    </link>
+    
+    <!-- Joint 3 -->
+    <joint name="${prefix}_joint3" type="revolute">
+      <parent link="${prefix}_extension2"/>
+      <child link="${prefix}_link3"/>
+      <origin xyz="${a2/2} 0 0" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+    </joint>
+    
+    <!-- Link 3 -->
+    <link name="${prefix}_link3">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${joint_radius}" length="${joint_length}"/>
+        </geometry>
+        <material name="skyblue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${joint_radius}" length="${joint_length}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+    
+    <!-- Third link extension -->
+    <joint name="${prefix}_extension3" type="fixed">
+      <parent link="${prefix}_link3"/>
+      <child link="${prefix}_extension3"/>
+      <origin xyz="${a3/2} 0 ${joint_length/2}" rpy="${pi/2} 0 0"/>
+    </joint>
+    
+    <link name="${prefix}_extension3">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${link_radius}" length="${a3}"/>
+        </geometry>
+        <material name="darkblue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${link_radius}" length="${a3}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.05"/>
+        <inertia ixx="0.0005" ixy="0" ixz="0" iyy="0.0005" iyz="0" izz="0.0005"/>
+      </inertial>
+    </link>
+    
+    <!-- End effector (finger tip) -->
+    <joint name="${prefix}_tip_joint" type="fixed">
+      <parent link="${prefix}_extension3"/>
+      <child link="${prefix}_tip"/>
+      <origin xyz="${a3/2} 0 0" rpy="0 0 0"/>
+    </joint>
+    
+    <link name="${prefix}_tip">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${link_radius*1.2}"/>
+        </geometry>
+        <material name="darkblue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${link_radius*1.2}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.01"/>
+        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+      </inertial>
+    </link>
+  </xacro:macro>
+  
+  <!-- Create the three fingers at specified locations -->
+  <xacro:finger prefix="finger1" x="1" y="0" z="-1"/>
+  <xacro:finger prefix="finger2" x="1" y="-1" z="1"/>
+  <xacro:finger prefix="finger3" x="1" y="1" z="1"/>
+
+</robot>
