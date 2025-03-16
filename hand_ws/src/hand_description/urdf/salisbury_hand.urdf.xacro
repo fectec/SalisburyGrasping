@@ -12,22 +12,53 @@
   <xacro:property name="finger2_base" value="0.05 -0.05 0.05" />
   <xacro:property name="finger3_base" value="0.05 0.05 0.05" />
 
+  <!-- Visual parameters -->
+  <xacro:property name="joint_radius" value="0.02" />
+  <xacro:property name="link_radius"  value="0.01" />
+  
+  <!-- Global Materials -->
+  <material name="sky_blue">
+    <color rgba="0.53 0.81 0.92 1.0"/>
+  </material>
+  <material name="dark_blue">
+    <color rgba="0 0 0.8 1.0"/>
+  </material>
+  <material name="purple">
+    <color rgba="0.5 0 0.5 1.0"/>
+  </material>
+
   <!-- The root link -->
   <link name="world"/>
 
   <!-- Macro to create a finger chain with custom parameters -->
   <xacro:macro name="finger" params="finger_id base_xyz invert theta_lower_joint0 theta_upper_joint0">
     
-    <!-- Fixed transform from world to finger base -->
-    <link name="finger${finger_id}_base_link"/>
+    <!-- Base Joint -->
+    <link name="finger${finger_id}_base_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${joint_radius}"/>
+        </geometry>
+        <material name="sky_blue"/>
+      </visual>
+    </link>
     <joint name="finger${finger_id}_base_fixed" type="fixed">
       <parent link="world"/>
       <child link="finger${finger_id}_base_link"/>
       <origin xyz="${base_xyz}" rpy="${ '3.14159265359 -0.7854 0' if invert else '0 0.7854 0'}"/>
     </joint>
 
-    <!-- Joint 0 (revolute) with custom theta constraints -->
-    <link name="finger${finger_id}_joint0_link"/>
+    <!-- First Revolute Joint -->
+    <link name="finger${finger_id}_joint0_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${joint_radius}"/>
+        </geometry>
+        <material name="sky_blue"/>
+      </visual>
+    </link>
     <joint name="finger${finger_id}_joint0" type="revolute">
       <parent link="finger${finger_id}_base_link"/>
       <child link="finger${finger_id}_joint0_link"/>
@@ -36,16 +67,32 @@
       <limit lower="${theta_lower_joint0}" upper="${theta_upper_joint0}" effort="10" velocity="1"/>
     </joint>
 
-    <!-- Link 0 -->
-    <link name="finger${finger_id}_link0"/>
+    <!-- First Link -->
+    <link name="finger${finger_id}_link0">
+      <visual>
+        <origin xyz="${-a1/2} 0 0" rpy="0 -1.5708 0"/>
+        <geometry>
+          <cylinder radius="${link_radius}" length="${a1}"/>
+        </geometry>
+        <material name="dark_blue"/>
+      </visual>
+    </link>
     <joint name="finger${finger_id}_link0_fixed" type="fixed">
       <parent link="finger${finger_id}_joint0_link"/>
       <child link="finger${finger_id}_link0"/>
       <origin xyz="${a1} 0 0" rpy="-1.5708 0 0"/>
     </joint>
 
-    <!-- Joint 1 -->
-    <link name="finger${finger_id}_joint1_link"/>
+    <!-- Second Revolute Joint -->
+    <link name="finger${finger_id}_joint1_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${joint_radius}"/>
+        </geometry>
+        <material name="sky_blue"/>
+      </visual>
+    </link>
     <joint name="finger${finger_id}_joint1" type="revolute">
       <parent link="finger${finger_id}_link0"/>
       <child link="finger${finger_id}_joint1_link"/>
@@ -54,16 +101,32 @@
       <limit lower="-0.7854" upper="-1.5708" effort="10" velocity="1"/>
     </joint>
 
-    <!-- Link 1 -->
-    <link name="finger${finger_id}_link1"/>
+    <!-- Second Link -->
+    <link name="finger${finger_id}_link1">
+      <visual>
+        <origin xyz="${-a2/2} 0 0" rpy="0 -1.5708 0"/>
+        <geometry>
+          <cylinder radius="${link_radius}" length="${a2}"/>
+        </geometry>
+        <material name="dark_blue"/>
+      </visual>
+    </link>
     <joint name="finger${finger_id}_link1_fixed" type="fixed">
       <parent link="finger${finger_id}_joint1_link"/>
       <child link="finger${finger_id}_link1"/>
       <origin xyz="${a2} 0 0" rpy="0 0 0"/>
     </joint>
 
-    <!-- Joint 2 -->
-    <link name="finger${finger_id}_joint2_link"/>
+    <!-- Third Revolute Joint -->
+    <link name="finger${finger_id}_joint2_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${joint_radius}"/>
+        </geometry>
+        <material name="sky_blue"/>
+      </visual>
+    </link>
     <joint name="finger${finger_id}_joint2" type="revolute">
       <parent link="finger${finger_id}_link1"/>
       <child link="finger${finger_id}_joint2_link"/>
@@ -72,16 +135,32 @@
       <limit lower="-0.19635" upper="-0.7854" effort="10" velocity="1"/>
     </joint>
 
-    <!-- Link 2 -->
-    <link name="finger${finger_id}_link2"/>
+    <!-- Third Link -->
+    <link name="finger${finger_id}_link2">
+      <visual>
+        <origin xyz="${-a3/2} 0 0" rpy="0 -1.5708 0"/>
+        <geometry>
+          <cylinder radius="${link_radius}" length="${a3}"/>
+        </geometry>
+        <material name="dark_blue"/>
+      </visual>
+    </link>
     <joint name="finger${finger_id}_link2_fixed" type="fixed">
       <parent link="finger${finger_id}_joint2_link"/>
       <child link="finger${finger_id}_link2"/>
       <origin xyz="${a3} 0 0" rpy="0 0 0"/>
     </joint>
 
-    <!-- End Effector / Fingertip -->
-    <link name="finger${finger_id}_tip"/>
+   <!-- Fingertip -->
+    <link name="finger${finger_id}_tip">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${joint_radius}"/>
+        </geometry>
+        <material name="purple"/>
+      </visual>
+    </link>
     <joint name="finger${finger_id}_tip_fixed" type="fixed">
       <parent link="finger${finger_id}_link2"/>
       <child link="finger${finger_id}_tip"/>
