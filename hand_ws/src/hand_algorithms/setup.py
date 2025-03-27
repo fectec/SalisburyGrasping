@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'hand_control'
+package_name = 'hand_algorithms'
 
 setup(
     name=package_name,
@@ -19,8 +19,8 @@ setup(
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
-        'console_scripts': [
-            'grasping = hand_control.grasping:main'
-        ],
-    },
+    'console_scripts': [
+        'grasping = hand_algorithms.grasping:main',
+    ],
+},
 )
