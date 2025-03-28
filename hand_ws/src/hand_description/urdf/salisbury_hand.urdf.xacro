@@ -4,22 +4,22 @@
   <!-- Constants -->
   <xacro:property name="PI" value="3.14159265359" />
 
-  <!-- Kinematic parameters -->
-  <xacro:property name="a1" value="0.1" />
-  <xacro:property name="a2" value="0.1" />
-  <xacro:property name="a3" value="0.05" />
-
   <!-- Finger base positions -->
   <xacro:property name="base_distance" value="0.05" />
   <xacro:property name="finger1_base" value="${base_distance} 0 ${-base_distance}" />
   <xacro:property name="finger2_base" value="${base_distance} ${-base_distance} ${base_distance}" />
   <xacro:property name="finger3_base" value="${base_distance} ${base_distance} ${base_distance}" />
 
+  <!-- Kinematic parameters -->
+  <xacro:property name="a1" value="0.1" />
+  <xacro:property name="a2" value="0.1" />
+  <xacro:property name="a3" value="0.05" />
+
   <!-- Other parameters -->
-  <xacro:property name="h" value="${a3/2}" />
   <xacro:property name="cylinder_radius" value="0.01" />
-  <xacro:property name="r" value="${cylinder_radius}" />
   <xacro:property name="sphere_radius" value="${cylinder_radius*2}" />
+  <xacro:property name="h" value="${a3/2}" />
+  <xacro:property name="r" value="${cylinder_radius}" />
   <xacro:property name="fingertip_x" value="0.267" />
   <xacro:property name="fingertip_y_range" value="0.10" />
   <xacro:property name="fingertip_z_range" value="0.034" /> 
@@ -41,9 +41,6 @@
   <material name="green">
     <color rgba="0 1.0 0 1.0"/>
   </material>
-
-  <!-- The root link -->
-  <link name="world"/>
 
   <!-- Helper macros for visuals -->
   <xacro:macro name="vis_sphere" params="radius material origin_xyz='0 0 0'">
@@ -84,7 +81,7 @@
       <parent link="finger${finger_id}_base_joint"/>
       <child link="finger${finger_id}_joint0_visual"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${theta_lower_joint0}" upper="${theta_upper_joint0}" effort="10" velocity="1"/>
+      <limit lower="${theta_lower_joint0}" upper="${theta_upper_joint0}" effort="10.0" velocity="1.0"/>
     </joint>
 
     <link name="finger${finger_id}_link0_cylinder">
@@ -104,7 +101,7 @@
       <parent link="finger${finger_id}_link0_cylinder"/>
       <child link="finger${finger_id}_joint1_visual"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-PI/4}" upper="${-PI/2}" effort="10" velocity="1"/>
+      <limit lower="${-PI/4}" upper="${-PI/2}" effort="10.0" velocity="1.0"/>
     </joint>
 
     <link name="finger${finger_id}_link1_cylinder">
@@ -124,7 +121,7 @@
       <parent link="finger${finger_id}_link1_cylinder"/>
       <child link="finger${finger_id}_joint2_visual"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-PI/16}" upper="${-PI/4}" effort="10" velocity="1"/>
+      <limit lower="${-PI/16}" upper="${-PI/4}" effort="10.0" velocity="1.0"/>
     </joint>
 
     <link name="finger${finger_id}_link2_cylinder">
@@ -152,14 +149,15 @@
                params="box_name
                        box_size_x
                        box_size_y
-                       box_size_z">
+                       box_size_z
+                       material">
     <link name="${box_name}">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <box size="${box_size_x} ${box_size_y} ${box_size_z}"/>
         </geometry>
-        <material name="green"/>
+        <material name="${material}"/>
       </visual>
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -169,13 +167,16 @@
       </collision>
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0"/>
-        <mass value="0.2"/>
-        <inertia ixx="0.0001" ixy="0.0" ixz="0.0"
-                 iyy="0.0001" iyz="0.0"
-                 izz="0.0001"/>
+        <mass value="0.0"/>
+        <inertia ixx="0.0" ixy="0.0" ixz="0.0"
+                 iyy="0.0" iyz="0.0"
+                 izz="0.0"/>
       </inertial>
     </link>
   </xacro:macro>
+
+  <!-- The root link -->
+  <link name="world"/>
 
   <!-- Instantiate the 3 fingers -->
   <xacro:finger finger_id="1"
@@ -194,83 +195,72 @@
                 theta_lower_joint0="${-PI/8}"
                 theta_upper_joint0="${PI/8}"/>
 
-  <!-- Box that encloses the three fingertip coordinates when joints are centered -->
-  <!-- <xacro:create_fixed_box
-       box_name="grasp_box"
-       box_size_x="${box_size_x}"
-       box_size_y="${box_size_y}"
-       box_size_z="${box_size_z}"
-       xyz="${fingertip_x} 0 0"
-       rpy="0 0 0"
-       material_name="green"
-  /> -->
-
   <!-- Definition of the box with 6 DOF using dummy joints -->
+  <!-- Create the box link (visual, collision, inertia) -->
+  <xacro:create_floating_box box_name="grasp_box" box_size_x="${box_size_x}" box_size_y="${box_size_y}" box_size_z="${box_size_z}" material="green"/>
+
   <!-- 1) Fix the box base position with the desired offset -->
+  <link name="grasp_box_base"/>
   <joint name="grasp_box_base_fixed" type="fixed">
     <parent link="world"/>
     <child link="grasp_box_base"/>
     <origin xyz="${fingertip_x} 0 0" rpy="0 0 0"/>
   </joint>
-  <link name="grasp_box_base"/>
-
-  <!-- 2) Create the box link (visual, collision, inertia) -->
-  <xacro:create_floating_box box_name="grasp_box" box_size_x="${box_size_x}" box_size_y="${box_size_y}" box_size_z="${box_size_z}"/>
 
   <!-- 3) Dummy joint chain to provide 6 DOF from the base frame -->
   <!-- Translations -->
+  <link name="grasp_box_trans_x_link"/>
   <joint name="grasp_box_trans_x" type="prismatic">
     <parent link="grasp_box_base"/>
     <child link="grasp_box_trans_x_link"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
-    <limit lower="-1" upper="1" effort="10" velocity="1"/>
+    <limit lower="-1.0" upper="1.0" effort="10.0" velocity="1.0"/>
   </joint>
-  <link name="grasp_box_trans_x_link"/>
 
+  <link name="grasp_box_trans_y_link"/>
   <joint name="grasp_box_trans_y" type="prismatic">
     <parent link="grasp_box_trans_x_link"/>
     <child link="grasp_box_trans_y_link"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-1" upper="1" effort="10" velocity="1"/>
+    <limit lower="-1.0" upper="1.0" effort="10.0" velocity="1.0"/>
   </joint>
-  <link name="grasp_box_trans_y_link"/>
 
+  <link name="grasp_box_trans_z_link"/>
   <joint name="grasp_box_trans_z" type="prismatic">
     <parent link="grasp_box_trans_y_link"/>
     <child link="grasp_box_trans_z_link"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit lower="-1" upper="1" effort="10" velocity="1"/>
+    <limit lower="-1.0" upper="1.0" effort="10.0" velocity="1.0"/>
   </joint>
-  <link name="grasp_box_trans_z_link"/>
 
   <!-- Rotations -->
+  <link name="grasp_box_rot_x_link"/>
   <joint name="grasp_box_rot_x" type="revolute">
     <parent link="grasp_box_trans_z_link"/>
     <child link="grasp_box_rot_x_link"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
-    <limit lower="-3.14" upper="3.14" effort="10" velocity="1"/>
+    <limit lower="${-PI}" upper="${PI}" effort="10.0" velocity="1.0"/>
   </joint>
-  <link name="grasp_box_rot_x_link"/>
 
+  <link name="grasp_box_rot_y_link"/>
   <joint name="grasp_box_rot_y" type="revolute">
     <parent link="grasp_box_rot_x_link"/>
     <child link="grasp_box_rot_y_link"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-3.14" upper="3.14" effort="10" velocity="1"/>
+    <limit lower="${-PI}" upper="${PI}" effort="10.0" velocity="1.0"/>
   </joint>
-  <link name="grasp_box_rot_y_link"/>
 
   <joint name="grasp_box_rot_z" type="revolute">
     <parent link="grasp_box_rot_y_link"/>
     <child link="grasp_box"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit lower="-3.14" upper="3.14" effort="10" velocity="1"/>
+    <limit lower="${-PI}" upper="${PI}" effort="10.0" velocity="1.0"/>
   </joint>
 
   <!-- Finger 1 contact reference frame on the box -->
